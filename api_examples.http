@@ -1,0 +1,102 @@
+### Health Check
+GET http://localhost:8080/health
+
+### Register User
+POST http://localhost:8080/api/v1/auth/register
+Content-Type: application/json
+
+{
+  "full_name": "Umar Said",
+  "email": "umar@example.com",
+  "password": "password123",
+  "confirm_password": "password123"
+}
+
+### Login User
+POST http://localhost:8080/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "email": "umar@example.com",
+  "password": "password123"
+}
+
+### Login Admin
+POST http://localhost:8080/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@tabungin.com",
+  "password": "admin123",
+  "is_admin": true
+}
+
+### Get User Profile (requires token)
+GET http://localhost:8080/api/v1/users/profile
+Authorization: Bearer YOUR_JWT_TOKEN_HERE
+
+### Update User Profile (requires token)
+PUT http://localhost:8080/api/v1/users/profile
+Authorization: Bearer YOUR_JWT_TOKEN_HERE
+Content-Type: application/json
+
+{
+  "full_name": "Umar Said Updated",
+  "avatar": "data:image/svg+xml;base64,..."
+}
+
+### Create Testimoni (requires token)
+POST http://localhost:8080/api/v1/testimoni
+Authorization: Bearer YOUR_JWT_TOKEN_HERE
+Content-Type: application/json
+
+{
+  "content": "Aplikasi Tabungin sangat membantu saya dalam mengelola keuangan. Interface yang mudah digunakan dan fitur-fitur yang lengkap.",
+  "rating": 5
+}
+
+### Get Approved Testimoni (public)
+GET http://localhost:8080/api/v1/testimoni/approved
+
+### Get All Testimoni (admin only)
+GET http://localhost:8080/api/v1/testimoni/all
+Authorization: Bearer ADMIN_JWT_TOKEN_HERE
+
+### Get My Testimoni (requires token)
+GET http://localhost:8080/api/v1/testimoni/my
+Authorization: Bearer YOUR_JWT_TOKEN_HERE
+
+### Update Testimoni (requires token)
+PUT http://localhost:8080/api/v1/testimoni/TESTIMONI_ID_HERE
+Authorization: Bearer YOUR_JWT_TOKEN_HERE
+Content-Type: application/json
+
+{
+  "content": "Updated testimoni content",
+  "rating": 4
+}
+
+### Approve Testimoni (admin only)
+PUT http://localhost:8080/api/v1/testimoni/TESTIMONI_ID_HERE
+Authorization: Bearer ADMIN_JWT_TOKEN_HERE
+Content-Type: application/json
+
+{
+  "is_approved": true
+}
+
+### Delete Testimoni (requires token)
+DELETE http://localhost:8080/api/v1/testimoni/TESTIMONI_ID_HERE
+Authorization: Bearer YOUR_JWT_TOKEN_HERE
+
+### Get Dashboard Stats (admin only)
+GET http://localhost:8080/api/v1/dashboard/stats
+Authorization: Bearer ADMIN_JWT_TOKEN_HERE
+
+### Get User Analytics (requires token)
+GET http://localhost:8080/api/v1/dashboard/analytics
+Authorization: Bearer YOUR_JWT_TOKEN_HERE
+
+### Get All Users (admin only)
+GET http://localhost:8080/api/v1/users
+Authorization: Bearer ADMIN_JWT_TOKEN_HERE
