@@ -27,6 +27,15 @@ async fn main() -> std::io::Result<()> {
         env::set_var("HOST", "127.0.0.1");
         env::set_var("PORT", "8080");
         env::set_var("RUST_LOG", "debug");
+
+        // CORS configuration untuk development
+    let local_origin = "http://localhost:5173".parse::<HeaderValue>().unwrap();
+    let vercel_origin = "https://fe-tabungin.vercel.app/".parse::<HeaderValue>().unwrap();
+    let cors = CorsLayer::new()
+        .allow_origin([local_origin, vercel_origin])
+        .allow_methods([Method::GET, Method::POST, Method::PUT, Method::DELETE])
+        .allow_headers([AUTHORIZATION, CONTENT_TYPE, ACCEPT])
+        .allow_credentials(true);
     }
     
     env_logger::init();
@@ -34,7 +43,7 @@ async fn main() -> std::io::Result<()> {
     let config = Config::from_env();
 
     // Railway memberikan PORT lewat environment variable, fallback ke 8080 kalau lokal
-    let port: u16 = env::var("PORT")
+    let port: u16 = env::var("PORT")    
         .unwrap_or_else(|_| "8080".to_string())
         .parse()
         .expect("PORT must be a number");
