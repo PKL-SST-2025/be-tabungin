@@ -1,0 +1,29 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        SELECT DATE(created_at) as deposit_date, SUM(amount) as total_amount\n        FROM activities \n        WHERE user_id = $1 \n        AND activity_type = 'deposit'\n        AND DATE(created_at) >= CURRENT_DATE - INTERVAL '1 day' * ($2 - 1)\n        AND DATE(created_at) <= CURRENT_DATE\n        GROUP BY DATE(created_at)\n        ORDER BY deposit_date ASC\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "deposit_date",
+        "type_info": "Date"
+      },
+      {
+        "ordinal": 1,
+        "name": "total_amount",
+        "type_info": "Numeric"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Int4"
+      ]
+    },
+    "nullable": [
+      null,
+      null
+    ]
+  },
+  "hash": "e7a5a603f5cd3f66f6d01ed23ff8c8a695fcb92bc6b420b25bf234753e249110"
+}

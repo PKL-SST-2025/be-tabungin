@@ -1,3 +1,22 @@
+use crate::models::TestimoniWithUser;
+use crate::services::testimoni_service::get_testimoni_by_id;
+pub async fn get_testimoni_by_id_handler(
+    pool: web::Data<PgPool>,
+    path: web::Path<Uuid>,
+) -> Result<HttpResponse> {
+    let testimoni_id = path.into_inner();
+    match get_testimoni_by_id(&pool, testimoni_id).await {
+        Ok(testimoni) => Ok(HttpResponse::Ok().json(ApiResponse {
+            success: true,
+            message: "Testimoni detail retrieved successfully".to_string(),
+            data: Some(testimoni),
+        })),
+        Err(e) => Ok(HttpResponse::BadRequest().json(ErrorResponse {
+            error: "Failed to get testimoni detail".to_string(),
+            message: e.to_string(),
+        })),
+    }
+}
 use actix_web::{web, HttpResponse, Result, Scope};
 use sqlx::PgPool;
 use uuid::Uuid;
@@ -95,7 +114,7 @@ pub async fn update_testimoni_handler(
 ) -> Result<HttpResponse> {
     let testimoni_id = path.into_inner();
 
-    match update_testimoni(&pool, testimoni_id, user.id, &form).await {
+    match update_testimoni(&pool, testimoni_id, user.id, user.is_admin, &form).await {
         Ok(testimoni) => Ok(HttpResponse::Ok().json(ApiResponse {
             success: true,
             message: "Testimoni updated successfully".to_string(),
@@ -115,7 +134,7 @@ pub async fn delete_testimoni_handler(
 ) -> Result<HttpResponse> {
     let testimoni_id = path.into_inner();
 
-    match delete_testimoni(&pool, testimoni_id, user.id).await {
+    match delete_testimoni(&pool, testimoni_id, user.id, user.is_admin).await {
         Ok(_) => Ok(HttpResponse::Ok().json(ApiResponse::<()> {
             success: true,
             message: "Testimoni deleted successfully".to_string(),
@@ -134,6 +153,7 @@ pub fn testimoni_routes() -> Scope {
         .route("/all", web::get().to(get_all_testimoni_handler))
         .route("/approved", web::get().to(get_approved_testimoni_handler))
         .route("/my", web::get().to(get_user_testimoni_handler))
+        .route("/{id}", web::get().to(get_testimoni_by_id_handler))
         .route("/{id}", web::put().to(update_testimoni_handler))
         .route("/{id}", web::delete().to(delete_testimoni_handler))
 }

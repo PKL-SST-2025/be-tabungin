@@ -1,6 +1,6 @@
 use sqlx::PgPool;
 use uuid::Uuid;
-// use bcrypt::{hash, verify, DEFAULT_COST};
+use bcrypt::{hash, verify, DEFAULT_COST};
 use anyhow::{Result, anyhow};
 
 use crate::models::{User, RegisterRequest, LoginRequest, AuthResponse};
@@ -22,8 +22,9 @@ pub async fn register_user(
         return Err(anyhow!("User with this email already exists"));
     }
 
-    // Simpan password secara plain (TIDAK AMAN, hanya untuk testing/dev)
-    let password_hash = request.password.clone();
+    // Hash password dengan bcrypt
+    let password_hash = hash(&request.password, DEFAULT_COST)
+        .map_err(|_| anyhow!("Failed to hash password"))?;
 
     // Create user
     let user_id = Uuid::new_v4();
@@ -56,7 +57,7 @@ pub async fn login_user(
     request: &LoginRequest,
 ) -> Result<AuthResponse> {
     // Find user by email
-    let user = sqlx::query_as::<_, User>(
+    let mut user = sqlx::query_as::<_, User>(
         "SELECT * FROM users WHERE email = $1"
     )
     .bind(&request.email)
@@ -64,8 +65,15 @@ pub async fn login_user(
     .await?
     .ok_or_else(|| anyhow!("Invalid email or password"))?;
 
-    // Cek password plain (TIDAK AMAN, hanya untuk testing/dev)
-    if request.password != user.password_hash {
+    // Force umar@app.com to always be user (not admin) regardless of DB value
+    if user.email == "umar@app.com" {
+        user.is_admin = false;
+    }
+
+    // Verify password dengan bcrypt
+    if !verify(&request.password, &user.password_hash)
+        .map_err(|_| anyhow!("Password verification failed"))? 
+    {
         return Err(anyhow!("Invalid email or password"));
     }
 

@@ -1,0 +1,79 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        INSERT INTO activities (user_id, savings_target_id, activity_type, title, description, amount, icon, icon_color)\n        VALUES ($1, $2, 'target_created', $3, $4, 0, '🎯', 'bg-blue-500')\n        RETURNING id, user_id, savings_target_id, activity_type, title, description, \n                  amount, icon, icon_color, created_at\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "user_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "savings_target_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 3,
+        "name": "activity_type",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 4,
+        "name": "title",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 5,
+        "name": "description",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 6,
+        "name": "amount",
+        "type_info": "Numeric"
+      },
+      {
+        "ordinal": 7,
+        "name": "icon",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 8,
+        "name": "icon_color",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 9,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Varchar",
+        "Text"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      true,
+      false,
+      false,
+      true,
+      true,
+      true,
+      true,
+      true
+    ]
+  },
+  "hash": "bdb11352ab6e7f1ffa755237c1a70641ae318787e999f013d605db6457070b04"
+}

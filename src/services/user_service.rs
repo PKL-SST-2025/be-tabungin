@@ -33,17 +33,29 @@ pub async fn update_user_profile(
         params.push(full_name.clone());
         param_count += 1;
     }
-
     if let Some(avatar) = &request.avatar {
         query.push_str(&format!(", avatar = ${}", param_count));
         params.push(avatar.clone());
         param_count += 1;
     }
-
+    if let Some(nomor_telepon) = &request.nomor_telepon {
+        query.push_str(&format!(", nomor_telepon = ${}", param_count));
+        params.push(nomor_telepon.clone());
+        param_count += 1;
+    }
+    if let Some(alamat) = &request.alamat {
+        query.push_str(&format!(", alamat = ${}", param_count));
+        params.push(alamat.clone());
+        param_count += 1;
+    }
+    if let Some(posisi_jabatan) = &request.posisi_jabatan {
+        query.push_str(&format!(", posisi_jabatan = ${}", param_count));
+        params.push(posisi_jabatan.clone());
+        param_count += 1;
+    }
     query.push_str(&format!(" WHERE id = ${} RETURNING *", param_count));
 
     let mut query_builder = sqlx::query_as::<_, User>(&query);
-    
     for param in params {
         query_builder = query_builder.bind(param);
     }

@@ -1,0 +1,84 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        UPDATE savings_targets\n        SET current_amount = GREATEST(current_amount - $1, 0),\n            is_completed = CASE \n                WHEN current_amount - $1 < target_amount THEN false\n                ELSE is_completed\n            END,\n            updated_at = NOW()\n        WHERE id = $2 AND user_id = $3\n        RETURNING id, user_id, name, target_amount, current_amount, icon, icon_color,\n                  target_date, is_completed, created_at, updated_at\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "user_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "name",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 3,
+        "name": "target_amount",
+        "type_info": "Numeric"
+      },
+      {
+        "ordinal": 4,
+        "name": "current_amount",
+        "type_info": "Numeric"
+      },
+      {
+        "ordinal": 5,
+        "name": "icon",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 6,
+        "name": "icon_color",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 7,
+        "name": "target_date",
+        "type_info": "Date"
+      },
+      {
+        "ordinal": 8,
+        "name": "is_completed",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 9,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 10,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Numeric",
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true
+    ]
+  },
+  "hash": "e624f701b7909f7aaeefaa406f4e73171aa7463ece00e944f3c0a206740e9416"
+}

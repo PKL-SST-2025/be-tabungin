@@ -1,0 +1,19 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            INSERT INTO testimoni (id, user_id, content, rating, is_approved, created_at, updated_at)\n            VALUES ($1, $2, $3, $4, $5, NOW() - INTERVAL '1 day' * $6, NOW() - INTERVAL '1 day' * $6)\n            ON CONFLICT (id) DO NOTHING\n            ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Text",
+        "Int4",
+        "Bool",
+        "Float8"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "a0e97770c619af7e93ba26059623cd92eeee02574da45a50e99ae6e9b2633c1f"
+}

@@ -1,0 +1,74 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        SELECT \n            (SELECT COUNT(*) FROM users) as total_users,\n            (SELECT COUNT(*) FROM testimoni) as total_testimoni,\n            (SELECT COUNT(*) FROM testimoni WHERE is_approved = true) as approved_testimoni,\n            (SELECT COUNT(*) FROM testimoni WHERE is_approved = false) as pending_testimoni,\n            (SELECT AVG(rating::float) FROM testimoni WHERE is_approved = true) as avg_rating,\n            (SELECT COUNT(*) FROM savings_targets) as total_savings_targets,\n            (SELECT COUNT(*) FROM savings_targets WHERE is_completed = true) as completed_targets,\n            (SELECT COALESCE(SUM(total_saved), 0) FROM user_statistics) as total_saved_amount,\n            (SELECT COUNT(*) FROM activities) as total_activities,\n            (SELECT COUNT(DISTINCT user_id) FROM activities WHERE created_at::date = CURRENT_DATE) as active_users_today\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "total_users",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 1,
+        "name": "total_testimoni",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 2,
+        "name": "approved_testimoni",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 3,
+        "name": "pending_testimoni",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 4,
+        "name": "avg_rating",
+        "type_info": "Float8"
+      },
+      {
+        "ordinal": 5,
+        "name": "total_savings_targets",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 6,
+        "name": "completed_targets",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 7,
+        "name": "total_saved_amount",
+        "type_info": "Numeric"
+      },
+      {
+        "ordinal": 8,
+        "name": "total_activities",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 9,
+        "name": "active_users_today",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "hash": "d2319854ca38df89f1affa433ca742dd5af1e35de1ab084828d75c20faf69709"
+}

@@ -1,0 +1,83 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            SELECT \n                r.id,\n                r.reminder_date,\n                r.reminder_type,\n                r.title,\n                r.description as \"description!\",\n                r.is_completed as \"is_completed!\",\n                r.is_notified as \"is_notified!\",\n                st.name as target_name,\n                st.icon as \"target_icon!\",\n                st.icon_color as \"target_icon_color!\",\n                r.created_at as \"created_at!\"\n            FROM reminders r\n            JOIN savings_targets st ON r.savings_target_id = st.id\n            WHERE r.user_id = $1 \n              AND r.reminder_date >= CURRENT_DATE \n              AND r.reminder_date <= CURRENT_DATE + $2 * INTERVAL '1 day'\n              AND r.is_completed = false\n            ORDER BY r.reminder_date ASC, r.created_at DESC\n            ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "reminder_date",
+        "type_info": "Date"
+      },
+      {
+        "ordinal": 2,
+        "name": "reminder_type",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 3,
+        "name": "title",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 4,
+        "name": "description!",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 5,
+        "name": "is_completed!",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 6,
+        "name": "is_notified!",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 7,
+        "name": "target_name",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 8,
+        "name": "target_icon!",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 9,
+        "name": "target_icon_color!",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 10,
+        "name": "created_at!",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Float8"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      true,
+      true,
+      true,
+      false,
+      true,
+      true,
+      true
+    ]
+  },
+  "hash": "0a3c5626996c3a76cd983af5d968228500da4eceadd557b11f6e277fdcbc9aa6"
+}

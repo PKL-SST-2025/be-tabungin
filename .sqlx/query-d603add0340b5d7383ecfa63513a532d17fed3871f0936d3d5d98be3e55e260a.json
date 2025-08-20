@@ -1,0 +1,64 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        SELECT \n            (SELECT COUNT(*) FROM testimoni WHERE user_id = $1) as user_testimoni_count,\n            (SELECT AVG(rating::float) FROM testimoni WHERE user_id = $1) as user_avg_rating,\n            (SELECT created_at FROM users WHERE id = $1) as account_created,\n            (SELECT COUNT(*) FROM savings_targets WHERE user_id = $1) as total_savings_targets,\n            (SELECT COUNT(*) FROM savings_targets WHERE user_id = $1 AND is_completed = true) as completed_targets,\n            (SELECT COALESCE(total_saved, 0) FROM user_statistics WHERE user_id = $1) as total_saved,\n            (SELECT COALESCE(streak_days, 0) FROM user_statistics WHERE user_id = $1) as streak_days,\n            (SELECT COALESCE(achievements_count, 0) FROM user_statistics WHERE user_id = $1) as achievements_count\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "user_testimoni_count",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 1,
+        "name": "user_avg_rating",
+        "type_info": "Float8"
+      },
+      {
+        "ordinal": 2,
+        "name": "account_created",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 3,
+        "name": "total_savings_targets",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 4,
+        "name": "completed_targets",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 5,
+        "name": "total_saved",
+        "type_info": "Numeric"
+      },
+      {
+        "ordinal": 6,
+        "name": "streak_days",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 7,
+        "name": "achievements_count",
+        "type_info": "Int4"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "hash": "d603add0340b5d7383ecfa63513a532d17fed3871f0936d3d5d98be3e55e260a"
+}

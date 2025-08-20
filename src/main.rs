@@ -9,15 +9,38 @@ use actix_cors::Cors;
 use actix_web::{web, App, HttpServer, middleware::Logger};
 use config::Config;
 use sqlx::PgPool;
+use std::env;
+use std::net::SocketAddr;
+use actix_web::http::{header::{AUTHORIZATION, CONTENT_TYPE, ACCEPT}, Method};
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    dotenv::dotenv().ok();
+    // Load .env file dari current directory
+    if let Err(e) = dotenv::dotenv() {
+        eprintln!("Warning: Could not load .env file: {}", e);
+        eprintln!("Make sure .env file exists in the project root");
+        eprintln!("Using default environment variables...");
+        
+        // Set default environment variables jika .env gagal dimuat
+        env::set_var("DATABASE_URL", "postgresql://postgres:password@localhost:5432/tabungin_db");
+        env::set_var("JWT_SECRET", "your-super-secret-jwt-key-here");
+        env::set_var("HOST", "127.0.0.1");
+        env::set_var("PORT", "8080");
+        env::set_var("RUST_LOG", "debug");
+    }
+    
     env_logger::init();
 
     let config = Config::from_env();
-    let host = config.host.clone();
-    let port = config.port;
+
+    // Railway memberikan PORT lewat environment variable, fallback ke 8080 kalau lokal
+    let port: u16 = env::var("PORT")
+        .unwrap_or_else(|_| "8080".to_string())
+        .parse()
+        .expect("PORT must be a number");
+
+    // Untuk bind ke semua interface supaya bisa diakses dari luar container
+    let host = "0.0.0.0";
 
     // Database connection
     let pool = PgPool::connect(&config.database_url)
@@ -51,6 +74,12 @@ async fn main() -> std::io::Result<()> {
                     .service(handlers::testimoni::testimoni_routes())
                     .service(handlers::dashboard::dashboard_routes())
                     .service(handlers::password::password_routes())
+                    .service(handlers::savings::savings_routes())
+                    .service(handlers::activity::activity_routes())
+                    .service(handlers::statistics::statistics_routes())
+                    .service(handlers::reminder::reminder_routes())
+                    .configure(handlers::notification::config)
+                    .configure(handlers::search::config)
             )
             .service(handlers::health::health_check)
     })

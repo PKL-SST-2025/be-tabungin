@@ -1,0 +1,43 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        WITH date_series AS (\n            SELECT generate_series(\n                CURRENT_DATE - INTERVAL '1 day' * $1,\n                CURRENT_DATE,\n                INTERVAL '1 day'\n            )::date as date\n        )\n        SELECT \n            ds.date,\n            COALESCE(u.user_count, 0) as user_count,\n            COALESCE(s.savings_amount, 0) as savings_amount,\n            COALESCE(a.transactions_count, 0) as transactions_count\n        FROM date_series ds\n        LEFT JOIN (\n            SELECT created_at::date as date, COUNT(*) as user_count\n            FROM users\n            WHERE created_at::date >= CURRENT_DATE - INTERVAL '1 day' * $2\n            GROUP BY created_at::date\n        ) u ON ds.date = u.date\n        LEFT JOIN (\n            SELECT created_at::date as date, COALESCE(SUM(amount), 0) as savings_amount\n            FROM activities\n            WHERE activity_type = 'deposit' AND created_at::date >= CURRENT_DATE - INTERVAL '1 day' * $3\n            GROUP BY created_at::date\n        ) s ON ds.date = s.date\n        LEFT JOIN (\n            SELECT created_at::date as date, COUNT(*) as transactions_count\n            FROM activities\n            WHERE activity_type = 'deposit' AND created_at::date >= CURRENT_DATE - INTERVAL '1 day' * $4\n            GROUP BY created_at::date\n        ) a ON ds.date = a.date\n        ORDER BY ds.date\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "date",
+        "type_info": "Date"
+      },
+      {
+        "ordinal": 1,
+        "name": "user_count",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 2,
+        "name": "savings_amount",
+        "type_info": "Numeric"
+      },
+      {
+        "ordinal": 3,
+        "name": "transactions_count",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Float8",
+        "Float8",
+        "Float8",
+        "Float8"
+      ]
+    },
+    "nullable": [
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "hash": "131affe9a5aa41adc57047c200f0477fc9d8c569f8d128f8885dc27f524da02f"
+}

@@ -12,12 +12,12 @@ Content-Type: application/json
   "confirm_password": "password123"
 }
 
-### Login User
+### Login User - Test
 POST http://localhost:8080/api/v1/auth/login
 Content-Type: application/json
 
 {
-  "email": "umar@example.com",
+  "email": "umar@example.com", 
   "password": "password123"
 }
 
@@ -97,6 +97,110 @@ Authorization: Bearer ADMIN_JWT_TOKEN_HERE
 GET http://localhost:8080/api/v1/dashboard/analytics
 Authorization: Bearer YOUR_JWT_TOKEN_HERE
 
+### Get Trend Data (admin only)
+GET http://localhost:8080/api/v1/dashboard/trends?days=30
+Authorization: Bearer ADMIN_JWT_TOKEN_HERE
+
+### Get Rating Distribution (admin only)
+GET http://localhost:8080/api/v1/dashboard/ratings
+Authorization: Bearer ADMIN_JWT_TOKEN_HERE
+
 ### Get All Users (admin only)
 GET http://localhost:8080/api/v1/users
 Authorization: Bearer ADMIN_JWT_TOKEN_HERE
+
+###############################################
+# SAVINGS TARGETS ENDPOINTS
+###############################################
+
+### Create Savings Target (requires token)
+POST http://localhost:8080/api/v1/savings/targets
+Authorization: Bearer YOUR_JWT_TOKEN_HERE
+Content-Type: application/json
+
+{
+  "name": "DP Rumah",
+  "target_amount": 50000000.0,
+  "icon": "🏠",
+  "icon_color": "bg-green-500",
+  "target_date": "2025-12-31"
+}
+
+### Get User Savings Targets (requires token)
+GET http://localhost:8080/api/v1/savings/targets
+Authorization: Bearer YOUR_JWT_TOKEN_HERE
+
+### Get Specific Savings Target (requires token)
+GET http://localhost:8080/api/v1/savings/targets/TARGET_ID_HERE
+Authorization: Bearer YOUR_JWT_TOKEN_HERE
+
+### Update Savings Target (requires token)
+PUT http://localhost:8080/api/v1/savings/targets/TARGET_ID_HERE
+Authorization: Bearer YOUR_JWT_TOKEN_HERE
+Content-Type: application/json
+
+{
+  "name": "DP Rumah Updated",
+  "current_amount": 1000000.0,
+  "is_completed": false
+}
+
+### Add Deposit to Target (requires token) - DEBUG
+POST http://localhost:8080/api/v1/savings/targets/56dcf3b2-a332-402e-bea6-e82bc48c8616/deposit
+Authorization: Bearer YOUR_JWT_TOKEN_HERE
+Content-Type: application/json
+
+{
+  "amount": 100000.0
+}
+
+### Add Deposit to Target (requires token)
+POST http://localhost:8080/api/v1/savings/targets/TARGET_ID_HERE/deposit
+Authorization: Bearer YOUR_JWT_TOKEN_HERE
+Content-Type: application/json
+
+{
+  "amount": 100000.0
+}
+
+### Delete Savings Target (requires token)
+DELETE http://localhost:8080/api/v1/savings/targets/TARGET_ID_HERE
+Authorization: Bearer YOUR_JWT_TOKEN_HERE
+
+###############################################
+# ACTIVITIES ENDPOINTS
+###############################################
+
+### Create Activity (requires token)
+POST http://localhost:8080/api/v1/activities
+Authorization: Bearer YOUR_JWT_TOKEN_HERE
+Content-Type: application/json
+
+{
+  "activity_type": "deposit",
+  "title": "Manual deposit",
+  "description": "Added money to savings",
+  "amount": 50000.0,
+  "icon": "💰",
+  "icon_color": "bg-green-500"
+}
+
+### Get User Activities (requires token)
+GET http://localhost:8080/api/v1/activities?limit=20
+Authorization: Bearer YOUR_JWT_TOKEN_HERE
+
+### Get Recent Activities for Dashboard (admin only)
+GET http://localhost:8080/api/v1/activities/recent
+Authorization: Bearer ADMIN_JWT_TOKEN_HERE
+
+###############################################
+# STATISTICS ENDPOINTS
+###############################################
+
+### Get User Statistics (requires token)
+GET http://localhost:8080/api/v1/statistics
+Authorization: Bearer YOUR_JWT_TOKEN_HERE
+
+### Get User Achievements (requires token)
+GET http://localhost:8080/api/v1/statistics/achievements
+Authorization: Bearer YOUR_JWT_TOKEN_HERE

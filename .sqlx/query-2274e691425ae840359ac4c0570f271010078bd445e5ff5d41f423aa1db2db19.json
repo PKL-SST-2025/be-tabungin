@@ -1,0 +1,70 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        SELECT id, user_id, total_saved, streak_days, daily_average, achievements_count, \n               last_deposit_date, created_at, updated_at\n        FROM user_statistics \n        WHERE user_id = $1\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "user_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "total_saved",
+        "type_info": "Numeric"
+      },
+      {
+        "ordinal": 3,
+        "name": "streak_days",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 4,
+        "name": "daily_average",
+        "type_info": "Numeric"
+      },
+      {
+        "ordinal": 5,
+        "name": "achievements_count",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 6,
+        "name": "last_deposit_date",
+        "type_info": "Date"
+      },
+      {
+        "ordinal": 7,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 8,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true
+    ]
+  },
+  "hash": "2274e691425ae840359ac4c0570f271010078bd445e5ff5d41f423aa1db2db19"
+}

@@ -1,3 +1,42 @@
+pub async fn get_testimoni_by_id(
+    pool: &PgPool,
+    testimoni_id: Uuid,
+) -> Result<TestimoniWithUser> {
+    let row = sqlx::query!(
+        r#"
+        SELECT 
+            t.id, t.content, t.rating, t.is_approved, t.created_at,
+            u.id as user_id, u.full_name, u.email, u.avatar, u.is_admin, u.created_at as user_created_at,
+            u.nomor_telepon, u.alamat, u.posisi_jabatan
+        FROM testimoni t
+        JOIN users u ON t.user_id = u.id
+        WHERE t.id = $1
+        "#,
+        testimoni_id
+    )
+    .fetch_optional(pool)
+    .await?
+    .ok_or_else(|| anyhow!("Testimoni not found"))?;
+
+    Ok(TestimoniWithUser {
+        id: row.id,
+        content: row.content,
+        rating: row.rating,
+        is_approved: row.is_approved.unwrap_or(false),
+        created_at: row.created_at.unwrap_or_else(|| chrono::Utc::now()),
+        user: UserResponse {
+            id: row.user_id,
+            full_name: row.full_name,
+            email: row.email,
+            avatar: row.avatar,
+            is_admin: row.is_admin.unwrap_or(false),
+            nomor_telepon: row.nomor_telepon,
+            alamat: row.alamat,
+            posisi_jabatan: row.posisi_jabatan,
+            created_at: row.user_created_at.unwrap_or_else(|| chrono::Utc::now()),
+        },
+    })
+}
 use sqlx::PgPool;
 use uuid::Uuid;
 use anyhow::{Result, anyhow};
@@ -36,7 +75,8 @@ pub async fn get_all_testimoni(pool: &PgPool) -> Result<Vec<TestimoniWithUser>> 
         r#"
         SELECT 
             t.id, t.content, t.rating, t.is_approved, t.created_at,
-            u.id as user_id, u.full_name, u.email, u.avatar, u.is_admin, u.created_at as user_created_at
+            u.id as user_id, u.full_name, u.email, u.avatar, u.is_admin, u.created_at as user_created_at,
+            u.nomor_telepon, u.alamat, u.posisi_jabatan
         FROM testimoni t
         JOIN users u ON t.user_id = u.id
         ORDER BY t.created_at DESC
@@ -59,6 +99,9 @@ pub async fn get_all_testimoni(pool: &PgPool) -> Result<Vec<TestimoniWithUser>> 
                 email: row.email,
                 avatar: row.avatar,
                 is_admin: row.is_admin.unwrap_or(false),
+                nomor_telepon: row.nomor_telepon,
+                alamat: row.alamat,
+                posisi_jabatan: row.posisi_jabatan,
                 created_at: row.user_created_at.unwrap_or_else(|| chrono::Utc::now()),
             },
         })
@@ -72,7 +115,8 @@ pub async fn get_approved_testimoni(pool: &PgPool) -> Result<Vec<TestimoniWithUs
         r#"
         SELECT 
             t.id, t.content, t.rating, t.is_approved, t.created_at,
-            u.id as user_id, u.full_name, u.email, u.avatar, u.is_admin, u.created_at as user_created_at
+            u.id as user_id, u.full_name, u.email, u.avatar, u.is_admin, u.created_at as user_created_at,
+            u.nomor_telepon, u.alamat, u.posisi_jabatan
         FROM testimoni t
         JOIN users u ON t.user_id = u.id
         WHERE t.is_approved = true
@@ -96,6 +140,9 @@ pub async fn get_approved_testimoni(pool: &PgPool) -> Result<Vec<TestimoniWithUs
                 email: row.email,
                 avatar: row.avatar,
                 is_admin: row.is_admin.unwrap_or(false),
+                nomor_telepon: row.nomor_telepon,
+                alamat: row.alamat,
+                posisi_jabatan: row.posisi_jabatan,
                 created_at: row.user_created_at.unwrap_or_else(|| chrono::Utc::now()),
             },
         })
@@ -122,6 +169,7 @@ pub async fn update_testimoni(
     pool: &PgPool,
     testimoni_id: Uuid,
     user_id: Uuid,
+    is_admin: bool,
     request: &UpdateTestimoniRequest,
 ) -> Result<Testimoni> {
     // Check if testimoni exists and belongs to user (or user is admin)
@@ -133,8 +181,8 @@ pub async fn update_testimoni(
     .await?
     .ok_or_else(|| anyhow!("Testimoni not found"))?;
 
-    // Check ownership (this should be enhanced with admin check)
-    if existing.user_id != user_id {
+    // Allow update if owner or admin
+    if existing.user_id != user_id && !is_admin {
         return Err(anyhow!("Access denied"));
     }
 
@@ -156,7 +204,6 @@ pub async fn update_testimoni(
 
     if let Some(is_approved) = &request.is_approved {
         query.push_str(&format!(", is_approved = ${}", param_count));
-        params.push(is_approved.to_string());
         param_count += 1;
     }
 
@@ -164,8 +211,18 @@ pub async fn update_testimoni(
 
     let mut query_builder = sqlx::query_as::<_, Testimoni>(&query);
     
-    for param in params {
-        query_builder = query_builder.bind(param);
+    let mut param_index = 0;
+    if let Some(content) = &request.content {
+        query_builder = query_builder.bind(content);
+        param_index += 1;
+    }
+    if let Some(rating) = &request.rating {
+        query_builder = query_builder.bind(rating);
+        param_index += 1;
+    }
+    if let Some(is_approved) = &request.is_approved {
+        query_builder = query_builder.bind(*is_approved);
+        param_index += 1;
     }
     query_builder = query_builder.bind(testimoni_id);
 
@@ -181,6 +238,7 @@ pub async fn delete_testimoni(
     pool: &PgPool,
     testimoni_id: Uuid,
     user_id: Uuid,
+    is_admin: bool,
 ) -> Result<()> {
     // Check if testimoni exists and belongs to user (or user is admin)
     let existing = sqlx::query!(
@@ -191,8 +249,8 @@ pub async fn delete_testimoni(
     .await?
     .ok_or_else(|| anyhow!("Testimoni not found"))?;
 
-    // Check ownership (this should be enhanced with admin check)
-    if existing.user_id != user_id {
+    // Allow delete if owner or admin
+    if existing.user_id != user_id && !is_admin {
         return Err(anyhow!("Access denied"));
     }
 

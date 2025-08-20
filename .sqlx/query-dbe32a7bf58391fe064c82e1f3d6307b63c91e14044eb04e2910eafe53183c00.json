@@ -1,0 +1,98 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        SELECT \n            t.id, t.content, t.rating, t.is_approved, t.created_at,\n            u.id as user_id, u.full_name, u.email, u.avatar, u.is_admin, u.created_at as user_created_at,\n            u.nomor_telepon, u.alamat, u.posisi_jabatan\n        FROM testimoni t\n        JOIN users u ON t.user_id = u.id\n        ORDER BY t.created_at DESC\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "content",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "rating",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 3,
+        "name": "is_approved",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 4,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 5,
+        "name": "user_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 6,
+        "name": "full_name",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 7,
+        "name": "email",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 8,
+        "name": "avatar",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 9,
+        "name": "is_admin",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 10,
+        "name": "user_created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 11,
+        "name": "nomor_telepon",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 12,
+        "name": "alamat",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 13,
+        "name": "posisi_jabatan",
+        "type_info": "Varchar"
+      }
+    ],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      true,
+      true,
+      false,
+      false,
+      false,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true
+    ]
+  },
+  "hash": "dbe32a7bf58391fe064c82e1f3d6307b63c91e14044eb04e2910eafe53183c00"
+}

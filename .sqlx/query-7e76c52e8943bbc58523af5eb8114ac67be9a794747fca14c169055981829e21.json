@@ -1,0 +1,32 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        SELECT \n            rating,\n            is_approved,\n            COUNT(*) as count\n        FROM testimoni\n        GROUP BY rating, is_approved\n        ORDER BY rating DESC, is_approved DESC\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "rating",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 1,
+        "name": "is_approved",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 2,
+        "name": "count",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": [
+      false,
+      true,
+      null
+    ]
+  },
+  "hash": "7e76c52e8943bbc58523af5eb8114ac67be9a794747fca14c169055981829e21"
+}

@@ -3,3 +3,7 @@ pub mod user_service;
 pub mod testimoni_service;
 pub mod dashboard_service;
 pub mod password_service;
+pub mod savings_service;
+pub mod activity_service;
+pub mod statistics_service;
+pub mod reminder_service;

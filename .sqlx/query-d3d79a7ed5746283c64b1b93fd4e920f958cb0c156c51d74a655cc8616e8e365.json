@@ -1,0 +1,14 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            UPDATE user_statistics \n            SET achievements_count = achievements_count + 1\n            WHERE user_id = $1\n            ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "d3d79a7ed5746283c64b1b93fd4e920f958cb0c156c51d74a655cc8616e8e365"
+}

@@ -1,0 +1,32 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        SELECT \n            rating,\n            COUNT(*) as count,\n            (COUNT(*) * 100.0 / (SELECT COUNT(*) FROM testimoni WHERE is_approved = true)) as percentage\n        FROM testimoni \n        WHERE is_approved = true\n        GROUP BY rating\n        ORDER BY rating DESC\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "rating",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 1,
+        "name": "count",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 2,
+        "name": "percentage",
+        "type_info": "Numeric"
+      }
+    ],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": [
+      false,
+      null,
+      null
+    ]
+  },
+  "hash": "3ab7f5d82253a3580a1a134ba6920525da12c455cfac305a00025912e9ff5f25"
+}

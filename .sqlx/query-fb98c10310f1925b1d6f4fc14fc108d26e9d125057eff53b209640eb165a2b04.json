@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        INSERT INTO user_statistics (user_id, total_saved, streak_days, daily_average, achievements_count, last_deposit_date)\n        VALUES ($1, $2, 1, $2, 0, CURRENT_DATE)\n        ON CONFLICT (user_id) DO UPDATE SET\n            total_saved = user_statistics.total_saved + $2,\n            last_deposit_date = CURRENT_DATE,\n            streak_days = CASE \n                WHEN user_statistics.last_deposit_date = CURRENT_DATE - INTERVAL '1 day' \n                THEN user_statistics.streak_days + 1\n                WHEN user_statistics.last_deposit_date = CURRENT_DATE \n                THEN user_statistics.streak_days\n                ELSE 1\n            END,\n            daily_average = (user_statistics.total_saved + $2) / GREATEST(\n                (CURRENT_DATE - (SELECT created_at::date FROM users WHERE id = $1))::integer,\n                1\n            ),\n            updated_at = NOW()\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Numeric"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "fb98c10310f1925b1d6f4fc14fc108d26e9d125057eff53b209640eb165a2b04"
+}
