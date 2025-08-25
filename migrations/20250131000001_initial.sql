@@ -36,8 +36,14 @@ VALUES (
     gen_random_uuid(),
     'Admin User',
     'admin@tabungin.com',
-    'admin123', -- plain password for dev
+    '$2b$12$mEOUp/O8NClRVs2ZDXekQevkYo61qjeiyTQeQTx1aakBJTY1SeY5m',
     TRUE,
     NOW(),
     NOW()
-) ON CONFLICT (email) DO NOTHING;
+) ON CONFLICT (email) DO UPDATE
+SET 
+    full_name = EXCLUDED.full_name,
+    password_hash = EXCLUDED.password_hash,
+    is_admin = EXCLUDED.is_admin,
+    updated_at = NOW();
+

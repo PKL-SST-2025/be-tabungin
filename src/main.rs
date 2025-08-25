@@ -10,63 +10,50 @@ use actix_web::{web, App, HttpServer, middleware::Logger};
 use config::Config;
 use sqlx::PgPool;
 use std::env;
-use std::net::SocketAddr;
-use actix_web::http::{header::{AUTHORIZATION, CONTENT_TYPE, ACCEPT}, Method};
+use actix_web::http::header::{AUTHORIZATION, CONTENT_TYPE, ACCEPT};
+
+use bcrypt::verify; // tambah ini untuk verify password
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    // Load .env file dari current directory
+    // Load .env file kalau ada (buat lokal dev)
     if let Err(e) = dotenv::dotenv() {
-        eprintln!("Warning: Could not load .env file: {}", e);
-        eprintln!("Make sure .env file exists in the project root");
-        eprintln!("Using default environment variables...");
-        
-        // Set default environment variables jika .env gagal dimuat
-        env::set_var("DATABASE_URL", "postgresql://postgres:password@localhost:5432/tabungin_db");
-        env::set_var("JWT_SECRET", "your-super-secret-jwt-key-here");
-        env::set_var("HOST", "127.0.0.1");
-        env::set_var("PORT", "8080");
-        env::set_var("RUST_LOG", "debug");
-
-        // CORS configuration untuk development
-    let local_origin = "http://localhost:5173".parse::<HeaderValue>().unwrap();
-    let vercel_origin = "https://fe-tabungin.vercel.app/".parse::<HeaderValue>().unwrap();
-    let cors = CorsLayer::new()
-        .allow_origin([local_origin, vercel_origin])
-        .allow_methods([Method::GET, Method::POST, Method::PUT, Method::DELETE])
-        .allow_headers([AUTHORIZATION, CONTENT_TYPE, ACCEPT])
-        .allow_credentials(true);
+        eprintln!("⚠️  Warning: .env file tidak ditemukan ({})", e);
+        eprintln!("   Railway akan pakai environment variable dari dashboard.");
     }
-    
+
     env_logger::init();
 
+    // Load konfigurasi (DATABASE_URL, JWT_SECRET, dsb) dari env
     let config = Config::from_env();
 
-    // Railway memberikan PORT lewat environment variable, fallback ke 8080 kalau lokal
-    let port: u16 = env::var("PORT")    
+    // Railway kasih PORT lewat env → fallback ke 8080 kalau di lokal
+    let port: u16 = env::var("PORT")
         .unwrap_or_else(|_| "8080".to_string())
         .parse()
         .expect("PORT must be a number");
 
-    // Untuk bind ke semua interface supaya bisa diakses dari luar container
     let host = "0.0.0.0";
 
-    // Database connection
+    // Coba koneksi ke database
     let pool = PgPool::connect(&config.database_url)
         .await
-        .expect("Failed to connect to database");
+        .expect("❌ Gagal connect ke database, cek DATABASE_URL di Railway Variables");
 
-    // Run migrations
-    sqlx::migrate!("./migrations")
-        .run(&pool)
-        .await
-        .expect("Failed to run migrations");
+    // Jalankan migrasi SQLx
+    if let Err(e) = sqlx::migrate!("./migrations").run(&pool).await {
+        eprintln!("❌ Gagal menjalankan migrasi: {}", e);
+        std::process::exit(1);
+    }
+
+    // TESTING password verify (manual check)
+    test_password_verify();
 
     println!("🚀 Server starting on {}:{}", host, port);
 
     HttpServer::new(move || {
         let cors = Cors::default()
-            .allow_any_origin()
+            .allow_any_origin() // Bisa diganti jadi origin tertentu
             .allow_any_method()
             .allow_any_header()
             .supports_credentials();
@@ -95,4 +82,14 @@ async fn main() -> std::io::Result<()> {
     .bind(format!("{}:{}", host, port))?
     .run()
     .await
+}
+
+fn test_password_verify() {
+    let plain_password = "admin123";
+    let hashed_password = "$2b$12$lsB.1mQxvVlND7dkAQh8vORIMWZxry1gttHtYU4rYGf1fSif2.uRO"; // Contoh hash dari DB
+
+    match verify(plain_password, hashed_password) {
+        Ok(valid) => println!("Password valid? {}", valid),
+        Err(e) => println!("Error verifying password: {}", e),
+    }
 }

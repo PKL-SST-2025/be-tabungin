@@ -12,9 +12,9 @@ pub async fn register_user(
 ) -> Result<AuthResponse> {
     // Check if user already exists
     let existing_user = sqlx::query_as::<_, User>(
-        "SELECT * FROM users WHERE email = $1"
+        "SELECT * FROM users WHERE LOWER(email) = LOWER($1)"
     )
-    .bind(&request.email)
+    .bind(request.email.trim())
     .fetch_optional(pool)
     .await?;
 
@@ -37,7 +37,7 @@ pub async fn register_user(
     )
     .bind(user_id)
     .bind(&request.full_name)
-    .bind(&request.email)
+    .bind(request.email.trim())
     .bind(&password_hash)
     .bind(false) // Default to non-admin
     .fetch_one(pool)
@@ -56,14 +56,24 @@ pub async fn login_user(
     pool: &PgPool,
     request: &LoginRequest,
 ) -> Result<AuthResponse> {
-    // Find user by email
+    // Trim dan lowercase email dari request
+    let email = request.email.trim().to_lowercase();
+
+    // Debug: print email yang akan dicari
+    println!("Login attempt with email: {}", &email);
+
+    // Find user by email (case-insensitive)
     let mut user = sqlx::query_as::<_, User>(
-        "SELECT * FROM users WHERE email = $1"
+        "SELECT * FROM users WHERE LOWER(email) = $1"
     )
-    .bind(&request.email)
+    .bind(&email)
     .fetch_optional(pool)
     .await?
     .ok_or_else(|| anyhow!("Invalid email or password"))?;
+
+    // Debug: print user email dan password hash dari DB
+    println!("Found user email: {}", &user.email);
+    println!("Password hash in DB: {}", &user.password_hash);
 
     // Force umar@app.com to always be user (not admin) regardless of DB value
     if user.email == "umar@app.com" {
